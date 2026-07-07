@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GEO引擎 · GEO计费优化管理系统</title>
+<meta name="description" content="GEO引擎是专为有GEO交付能力的团队打造的规模化运营平台，提供GEO监控、AI内容生成、智能分发、灵活计费、代理体系、客户管理、权限管理、财务管理及数据采集等核心功能，把零散经验封装成可代理裂变的标准化服务体系。">
+<style>
+/* ========== Reset & Base ========== */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --c-primary:#7C5BF7;
+  --c-primary-dark:#6940E8;
+  --c-primary-light:#F3F0FE;
+  --c-accent:#6951E8;
+  --c-bg:#FFFFFF;
+  --c-bg-soft:#F8FAFC;
+  --c-bg-card:#FFFFFF;
+  --c-text:#6951E8;
+  --c-text-dark:#1E1B2E;
+  --c-text-mid:#475569;
+  --c-text-light:#94A3B8;
+  --c-border:#E2E8F0;
+  --c-border-hover:#CBD5E1;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.05);
+  --shadow-md:0 4px 12px rgba(0,0,0,.06);
+  --shadow-lg:0 12px 40px rgba(124,91,247,.08);
+  --shadow-xl:0 24px 60px rgba(124,91,247,.12);
+  --radius-sm:8px;
+  --radius-md:14px;
+  --radius-lg:20px;
+  --gradient:linear-gradient(135deg,#7C5BF7 0%,#6951E8 100%);
+  --gradient-soft:linear-gradient(135deg,#CAC0F6 0%,#EDE9FE 100%);
+}
+html{scroll-behavior:smooth;font-size:16px}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif;
+  background:var(--c-bg);
+  color:var(--c-text-dark);
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+a{text-decoration:none;color:inherit}
+img,svg{display:block;max-width:100%}
+ul{list-style:none}
+.container{max-width:1180px;margin:0 auto;padding:0 24px}
+
+/* ========== Navbar ========== */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  background:rgba(255,255,255,.88);
+  backdrop-filter:saturate(180%) blur(20px);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:1px solid rgba(226,232,240,.6);
+  transition:box-shadow .3s ease;
+}
+.nav.scrolled{box-shadow:0 1px 12px rgba(0,0,0,.06)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:68px}
+.logo{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:800;letter-spacing:-.02em}
+.logo-icon{
+  width:36px;height:36px;border-radius:10px;
+  background:var(--gradient);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 12px rgba(124,91,247,.3);
+}
+.logo-icon svg{width:20px;height:20px}
+.logo-text{background:var(--gradient);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.nav-links{display:flex;gap:36px}
+.nav-links a{font-size:15px;color:var(--c-text-mid);font-weight:500;transition:color .2s}
+.nav-links a:hover{color:var(--c-primary)}
+.nav-cta{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:9px 22px;border-radius:10px;
+  background:var(--c-primary);color:#fff;
+  font-size:14px;font-weight:600;
+  transition:all .25s ease;
+  box-shadow:0 4px 12px rgba(124,91,247,.25);
+}
+.nav-cta:hover{background:var(--c-primary-dark);transform:translateY(-1px);box-shadow:0 6px 18px rgba(124,91,247,.35)}
+.nav-toggle{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:6px}
+.nav-toggle span{width:22px;height:2px;background:var(--c-text-dark);border-radius:2px;transition:.3s}
+
+/* ========== Hero ========== */
+.hero{
+  position:relative;
+  padding:140px 0 100px;
+  background:var(--gradient-soft);
+  overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;top:-200px;right:-100px;
+  width:600px;height:600px;border-radius:50%;
+  background:radial-gradient(circle,rgba(124,91,247,.08) 0%,transparent 70%);
+}
+.hero::after{
+  content:'';position:absolute;bottom:-150px;left:-100px;
+  width:500px;height:500px;border-radius:50%;
+  background:radial-gradient(circle,rgba(124,91,247,.06) 0%,transparent 70%);
+}
+.hero-inner{position:relative;z-index:2;text-align:center;max-width:820px;margin:0 auto}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:7px 18px;border-radius:100px;
+  background:rgba(124,91,247,.08);color:var(--c-primary);
+  font-size:13px;font-weight:600;
+  margin-bottom:28px;
+  border:1px solid rgba(124,91,247,.15);
+}
+.hero-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--c-primary);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.hero h1{font-size:50px;font-weight:800;letter-spacing:-.03em;line-height:1.2;margin-bottom:24px;color:var(--c-text)}
+.hero h1 .grad{background:var(--gradient);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero p.sub{font-size:18px;color:var(--c-text-mid);max-width:620px;margin:0 auto 40px;line-height:1.85}
+.hero-actions{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.btn-primary{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:15px 38px;border-radius:12px;
+  background:var(--gradient);color:#fff;
+  font-size:16px;font-weight:600;
+  transition:all .3s ease;
+  box-shadow:0 8px 24px rgba(124,91,247,.3);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(124,91,247,.4)}
+.btn-secondary{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:15px 38px;border-radius:12px;
+  background:#fff;color:var(--c-primary);
+  font-size:16px;font-weight:600;
+  border:1.5px solid var(--c-border);
+  transition:all .3s ease;
+}
+.btn-secondary:hover{border-color:var(--c-primary);transform:translateY(-2px);box-shadow:var(--shadow-md)}
+
+/* Hero data bar */
+.hero-data{
+  display:flex;justify-content:center;gap:48px;
+  margin-top:68px;flex-wrap:wrap;
+  padding:32px 0;
+  border-top:1px solid rgba(124,91,247,.12);
+}
+.hero-data-item{text-align:center}
+.hero-data-item .num{font-size:36px;font-weight:800;color:var(--c-primary)}
+.hero-data-item .label{font-size:14px;color:var(--c-text-light);margin-top:4px}
+
+/* ========== Section ========== */
+.section{padding:100px 0}
+.section-soft{background:var(--c-bg-soft)}
+.section-head{text-align:center;max-width:700px;margin:0 auto 64px}
+.section-tag{
+  display:inline-block;padding:6px 16px;border-radius:100px;
+  background:var(--c-primary-light);color:var(--c-primary);
+  font-size:13px;font-weight:600;margin-bottom:18px;
+}
+.section h2{font-size:38px;font-weight:800;letter-spacing:-.02em;margin-bottom:16px;color:var(--c-text)}
+.section h2 .grad{background:var(--gradient);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.section-desc{font-size:17px;color:var(--c-text-mid);line-height:1.8}
+
+/* ========== Advantage Grid (4 cards) ========== */
+.advantage-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.advantage-card{
+  background:var(--c-bg-card);
+  border:1px solid var(--c-border);
+  border-radius:var(--radius-lg);
+  padding:40px 28px 32px;
+  text-align:center;
+  transition:all .35s ease;
+  position:relative;
+}
+.advantage-card:hover{border-color:transparent;box-shadow:var(--shadow-lg);transform:translateY(-6px)}
+.advantage-icon{
+  width:56px;height:56px;border-radius:14px;
+  background:var(--c-primary-light);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 20px;
+  transition:all .35s ease;
+}
+.advantage-card:hover .advantage-icon{background:var(--gradient);transform:scale(1.05)}
+.advantage-icon svg{width:26px;height:26px;color:var(--c-primary);transition:color .35s ease}
+.advantage-card:hover .advantage-icon svg{color:#fff}
+.advantage-card h3{font-size:19px;font-weight:700;margin-bottom:8px;color:var(--c-text)}
+.advantage-card .num-highlight{font-size:32px;font-weight:800;color:var(--c-primary);display:block;margin:8px 0 4px}
+.advantage-card p{font-size:14px;color:var(--c-text-mid);line-height:1.7}
+
+/* ========== Feature Grid (3x3) ========== */
+.feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.feature-card{
+  background:var(--c-bg-card);
+  border:1px solid var(--c-border);
+  border-radius:var(--radius-lg);
+  padding:36px 32px;
+  transition:all .35s cubic-bezier(.4,0,.2,1);
+  position:relative;
+  overflow:hidden;
+}
+.feature-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:var(--gradient);
+  transform:scaleX(0);transform-origin:left;
+  transition:transform .4s ease;
+}
+.feature-card:hover{border-color:transparent;box-shadow:var(--shadow-lg);transform:translateY(-6px)}
+.feature-card:hover::before{transform:scaleX(1)}
+.feature-icon{
+  width:52px;height:52px;border-radius:13px;
+  background:var(--c-primary-light);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:22px;
+  transition:all .35s ease;
+}
+.feature-card:hover .feature-icon{background:var(--gradient);transform:scale(1.05) rotate(-3deg)}
+.feature-icon svg{width:26px;height:26px;color:var(--c-primary);transition:color .35s ease}
+.feature-card:hover .feature-icon svg{color:#fff}
+.feature-card h3{font-size:20px;font-weight:700;margin-bottom:12px;color:var(--c-text);letter-spacing:-.01em}
+.feature-card p{font-size:15px;color:var(--c-text-mid);line-height:1.75;margin-bottom:16px}
+.feature-tags{display:flex;flex-wrap:wrap;gap:8px}
+.feature-tag{
+  font-size:12px;padding:3px 10px;border-radius:6px;
+  background:var(--c-bg-soft);color:var(--c-text-mid);
+  font-weight:500;border:1px solid var(--c-border);
+}
+.feature-tag.dev{color:#A78BFA;background:#F5F3FF;border-color:#EDE9FE}
+.feature-tag.dev::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:#A78BFA;margin-right:6px;vertical-align:middle;animation:pulse 2s infinite}
+.feature-status{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#16A34A;font-weight:600;margin-bottom:14px}
+.feature-status::before{content:'';width:7px;height:7px;border-radius:50%;background:#16A34A}
+
+/* ========== Efficiency Grid ========== */
+.efficiency-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.efficiency-card{
+  padding:32px 24px;border-radius:var(--radius-md);
+  background:#fff;border:1px solid var(--c-border);
+  transition:all .3s ease;
+}
+.efficiency-card:hover{box-shadow:var(--shadow-md);transform:translateY(-4px)}
+.efficiency-card .icon-wrap{
+  width:44px;height:44px;border-radius:11px;
+  background:var(--gradient);display:flex;align-items:center;justify-content:center;
+  margin-bottom:18px;
+}
+.efficiency-card .icon-wrap svg{width:22px;height:22px;color:#fff}
+.efficiency-card h4{font-size:17px;font-weight:700;margin-bottom:8px;color:var(--c-text)}
+.efficiency-card p{font-size:14px;color:var(--c-text-light);line-height:1.6}
+
+/* ========== Workflow ========== */
+.workflow{display:flex;align-items:center;gap:80px;flex-wrap:wrap;justify-content:center}
+.workflow-step{flex:1;min-width:240px;max-width:340px;text-align:center;position:relative}
+.workflow-num{
+  width:60px;height:60px;border-radius:50%;
+  background:#fff;border:2px solid var(--c-primary);
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;font-weight:800;color:var(--c-primary);
+  margin:0 auto 20px;
+  box-shadow:0 4px 16px rgba(124,91,247,.12);
+}
+.workflow-step h4{font-size:19px;font-weight:700;margin-bottom:10px;color:var(--c-text)}
+.workflow-step p{font-size:15px;color:var(--c-text-mid);line-height:1.7}
+.workflow-arrow{font-size:32px;color:var(--c-border);display:flex;align-items:center}
+.workflow-arrow svg{color:var(--c-text-light)}
+
+/* ========== CTA ========== */
+.cta-section{
+  position:relative;padding:90px 0;
+  background:var(--gradient);overflow:hidden;
+}
+.cta-section::before{
+  content:'';position:absolute;top:-100px;right:-50px;
+  width:400px;height:400px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.08) 0%,transparent 70%);
+}
+.cta-section::after{
+  content:'';position:absolute;bottom:-100px;left:-50px;
+  width:350px;height:350px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.06) 0%,transparent 70%);
+}
+.cta-inner{position:relative;z-index:2;text-align:center;max-width:600px;margin:0 auto}
+.cta-inner h2{font-size:36px;font-weight:800;color:#fff;margin-bottom:16px;letter-spacing:-.02em}
+.cta-inner p{font-size:17px;color:rgba(255,255,255,.85);margin-bottom:36px;line-height:1.7}
+.cta-qr{
+  display:flex;align-items:center;justify-content:center;gap:40px;
+  background:rgba(255,255,255,.12);border-radius:var(--radius-lg);
+  padding:32px 40px;backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.18);
+}
+.cta-qr-img{
+  width:120px;height:120px;background:rgba(255,255,255,.3);
+  border-radius:12px;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.cta-qr-img svg{width:100px;height:100px;color:rgba(255,255,255,.5)}
+.cta-qr-text{text-align:left}
+.cta-qr-text strong{display:block;font-size:16px;color:#fff;margin-bottom:6px}
+.cta-qr-text span{font-size:14px;color:rgba(255,255,255,.7);line-height:1.6}
+
+/* ========== Footer ========== */
+.footer{background:#1E1B2E;color:var(--c-text-light);padding:48px 0 28px}
+.footer-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:40px;margin-bottom:36px}
+.footer-brand{max-width:300px}
+.footer-brand .logo{color:#fff;margin-bottom:14px}
+.footer-brand p{font-size:14px;line-height:1.7;color:#64748B}
+.footer-links{display:flex;gap:56px;flex-wrap:wrap}
+.footer-col h5{color:#fff;font-size:14px;font-weight:600;margin-bottom:14px}
+.footer-col li{margin-bottom:10px}
+.footer-col a{font-size:14px;color:#64748B;transition:color .2s}
+.footer-col a:hover{color:var(--c-primary)}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.08);padding-top:22px;text-align:center}
+.footer-bottom p{font-size:13px;color:#475569}
+
+/* ========== Scroll Reveal ========== */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* ========== Responsive ========== */
+@media(max-width:1024px){
+  .feature-grid{grid-template-columns:repeat(2,1fr)}
+  .advantage-grid{grid-template-columns:repeat(2,1fr)}
+  .efficiency-grid{grid-template-columns:repeat(2,1fr)}
+  .hero h1{font-size:40px}
+}
+@media(max-width:768px){
+  .nav-links{display:none}
+  .nav-toggle{display:flex}
+  .nav-links.open{display:flex;flex-direction:column;position:absolute;top:68px;left:0;right:0;background:#fff;padding:24px;gap:18px;border-bottom:1px solid var(--c-border);box-shadow:var(--shadow-md)}
+  .feature-grid{grid-template-columns:1fr}
+  .advantage-grid{grid-template-columns:1fr}
+  .efficiency-grid{grid-template-columns:repeat(2,1fr)}
+  .hero{padding:110px 0 64px}
+  .hero h1{font-size:32px}
+  .hero p.sub{font-size:16px}
+  .hero-data{gap:24px;padding:24px 0}
+  .hero-data-item .num{font-size:28px}
+  .section{padding:64px 0}
+  .section h2{font-size:28px}
+  .section-desc{font-size:15px}
+  .cta-inner h2{font-size:28px}
+  .cta-qr{flex-direction:column;padding:24px}
+  .cta-qr-text{text-align:center}
+  .workflow{flex-direction:column;gap:36px}
+  .workflow-arrow{transform:rotate(90deg)}
+  .btn-primary,.btn-secondary{padding:13px 28px;font-size:15px}
+}
+@media(max-width:480px){
+  .efficiency-grid{grid-template-columns:1fr}
+  .footer-top{flex-direction:column}
+  .footer-links{gap:30px}
+  .hero h1{font-size:26px}
+  .hero-actions{flex-direction:column;width:100%}
+  .btn-primary,.btn-secondary{width:100%;justify-content:center}
+  .hero-data{gap:18px}
+}
+</style>
+</head>
+<body>
+
+<!-- ========== Navbar ========== -->
+<nav class="nav" id="nav">
+  <div class="container nav-inner">
+    <a href="#" class="logo">
+      <span class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+      </span>
+      <span class="logo-text">GEO引擎</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#advantage">核心优势</a></li>
+      <li><a href="#features">功能模块</a></li>
+      <li><a href="#efficiency">效率提升</a></li>
+      <li><a href="#workflow">使用流程</a></li>
+    </ul>
+    <a href="#contact" class="nav-cta">预约演示</a>
+    <div class="nav-toggle" id="navToggle"><span></span><span></span><span></span></div>
+  </div>
+</nav>
+
+<!-- ========== Hero ========== -->
+<section class="hero">
+  <div class="container hero-inner">
+    <h1>致力于赋能GEO服务商、全能力全流程打造GEO服务闭环</h1>
+    <div class="hero-actions">
+      <a href="#contact" class="btn-primary">
+        预约商务演示
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+      <a href="#advantage" class="btn-secondary">了解核心优势</a>
+    </div>
+    <div class="hero-data">
+      <div class="hero-data-item">
+        <div class="num">18000+</div>
+        <div class="label">合作媒体资源</div>
+      </div>
+      <div class="hero-data-item">
+        <div class="num">790+</div>
+        <div class="label">海外分发渠道</div>
+      </div>
+      <div class="hero-data-item">
+        <div class="num">6大</div>
+        <div class="label">AI 平台品牌监控</div>
+      </div>
+      <div class="hero-data-item">
+        <div class="num">一二级</div>
+        <div class="label">代理裂变体系</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 核心优势 ========== -->
+<section class="section" id="advantage">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2>不是功能多，而是<span class="grad">运营能力强</span></h2>
+      <p class="section-desc">GEO引擎不拼功能数量，而是靠资源规模、计费模式创新、代理体系完整度构建服务商不可替代的运营壁垒。</p>
+    </div>
+    <div class="advantage-grid">
+      <div class="advantage-card reveal">
+        <div class="advantage-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <h3>媒体资源行业最大</h3>
+        <span class="num-highlight">18000+</span>
+        <p>含790+海外渠道，覆盖国内主流媒体及海外GEO分发网络，远超同类竞品</p>
+      </div>
+      <div class="advantage-card reveal">
+        <div class="advantage-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+        </div>
+        <h3>效果计费模式</h3>
+        <span class="num-highlight">按效果</span>
+        <p>按品牌词在6大AI平台命中天数计费，无效不扣费，降低客户决策门槛，提升成交率</p>
+      </div>
+      <div class="advantage-card reveal">
+        <div class="advantage-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76Z"/></svg>
+        </div>
+        <h3>OEM 白标完全自主</h3>
+        <span class="num-highlight">100%</span>
+        <p>自定义品牌名称、域名、Logo、产品定价，代理商完全自主运营，品牌隐蔽无平台痕迹</p>
+      </div>
+      <div class="advantage-card reveal">
+        <div class="advantage-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5v4M12 11.5 6.5 17M12 11.5 17.5 17"/></svg>
+        </div>
+        <h3>代理裂变体系</h3>
+        <span class="num-highlight">多层次</span>
+        <p>一二级代理发展+独立核算，平台化扩张，代理商即渠道，规模化增长引擎</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 九大功能模块 ========== -->
+<section class="section section-soft" id="features">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2>九大模块，<span class="grad">覆盖服务商全链路运营</span></h2>
+      <p class="section-desc">从品牌监控到内容生产，从智能分发到代理管理，GEO引擎为服务商提供完整的标准化运营体系。</p>
+    </div>
+    <div class="feature-grid">
+      <!-- 1. GEO监控 -->
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><path d="M11 8v6"/><path d="M8 11h6"/></svg>
+        </div>
+        <span class="feature-status">已上线</span>
+        <h3>GEO 品牌监控</h3>
+        <p>覆盖6大AI平台品牌词命中追踪，日报/月报自动生成，支持自定义报表维度，运营效果实时可见。</p>
+        <div class="feature-tags">
+          <span class="feature-tag">6大AI平台</span>
+          <span class="feature-tag">日报/月报</span>
+          <span class="feature-tag">自定义报表</span>
+        </div>
+      </div>
+      <!-- 2. AI内容生成 -->
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v2a3 3 0 0 0 3 3 3 3 0 0 0 3-3V5a3 3 0 0 0-3-3Z"/><path d="M19 10a7 7 0 0 0-14 0"/><path d="M12 20a7 7 0 0 0 7-7H5a7 7 0 0 0 7 7Z"/></svg>
+        </div>
+        <span class="feature-status">已上线</span>
+        <h3>AI 内容生成</h3>
+        <p>大模型+预设提示词模板，批量生成结构化品牌内容，日产百篇，质量稳定，告别人工撰写瓶颈。</p>
+        <div class="feature-tags">
+          <span class="feature-tag">大模型驱动</span>
+          <span class="feature-tag">提示词模板</span>
+          <span class="feature-tag">批量生成</span>
+        </div>
+      </div>
+      <!-- 3. 智能分发 -->
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4 20-7Z"/></svg>
+        </div>
+        <span class="feature-status">已上线</span>
+        <h3>智能分发</h3>
+        <p>18000+媒体一键多平台投稿，国内+海外同步覆盖，告别手动复制粘贴，分发效率指数级提升。</p>
+        <div class="feature-tags">
+          <span class="feature-tag">一键投稿</span>
+          <span class="feature-tag">18000+媒体</span>
+          <span class="feature-tag">海内外同步</span>
+        </div>
+      </div>
+      <!-- 4. 灵活计费 -->
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        </div>
+        <span class="feature-status">已上线</span>
+        <h3>灵活计费</h3>
+        <p>按效果计费（品牌词命中天数）与固定套餐（包月/包年）双模式，客户自定价灵活适配，无效不扣费。</p>
+        <div class="feature-tags">
+          <span class="feature-tag">按效果计费</span>
+          <span class="feature-tag">包月/包年</span>
+          <span class="feature-tag">客户自定价</span>
+        </div>
+      </div>
+      <!-- 5. 代理体系 -->
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5v4M12 11.5 6.5 17M12 11.5 17.5 17"/></svg>
+        </div>
+        <span class="feature-status">已上线</span>
+        <h3>代理体系</h3>
+        <p>一二级代理发展机制，OEM白标自定义品牌/域名/Logo，独立核算经营数据，平台化规模化扩张。</p>
+        <div class="feature-tags">
+          <span class="feature-tag">一二级代理</span>
+          <span class="feature-tag">OEM白标</span>
+          <span class="feature-tag">独立核算</span>
+        </div>
+      </div>
+      <!-- 6. 客户管理 -->
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <span class="feature-status">已上线</span>
+        <h3>客户管理</h3>
+        <p>终端客户自助查看计费明细、报表明细，自定义企业知识库内容，减少服务商客服成本。</p>
+        <div class="feature-tags">
+          <span class="feature-tag">计费明细</span>
+          <span class="feature-tag">报表明细</span>
+          <span class="feature-tag">自定义知识库</span>
+        </div>
+      </div>
+      <!-- 7. 权限管理 -->
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
+        </div>
+        <span class="feature-status">已上线</span>
+        <h3>权限管理</h3>
+        <p>企业员工+代理商双体系权限管理，角色完全自定义，精细到按钮级控制，数据安全不混乱。</p>
+        <div class="feature-tags">
+          <span class="feature-tag">员工权限</span>
+          <span class="feature-tag">代理商权限</span>
+          <span class="feature-tag">按钮级管控</span>
+        </div>
+      </div>
+      <!-- 8. 财务管理 -->
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+        </div>
+        <span class="feature-status">已上线</span>
+        <h3>财务管理</h3>
+        <p>客户在线充值、流水明细实时记录、分账记录清晰可追溯，先收钱后服务，保障现金流健康。</p>
+        <div class="feature-tags">
+          <span class="feature-tag">在线充值</span>
+          <span class="feature-tag">流水明细</span>
+          <span class="feature-tag">分账记录</span>
+        </div>
+      </div>
+      <!-- 9. 数据采集 -->
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </div>
+        <span class="feature-status" style="color:#A78BFA">部分开发中</span>
+        <h3>数据采集引擎</h3>
+        <p>自定义采集模式，对接各大模型API与第三方API查询，灵活扩展数据来源，不被单一平台绑定。</p>
+        <div class="feature-tags">
+          <span class="feature-tag">大模型API</span>
+          <span class="feature-tag">第三方API</span>
+          <span class="feature-tag">自定义采集</span>
+          <span class="feature-tag dev">客户端采集</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 效率提升 ========== -->
+<section class="section" id="efficiency">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2>把<span class="grad">重复劳动</span>交给系统</h2>
+      <p class="section-desc">GEO引擎的核心不是替代服务商，而是把低价值的重复工作自动化，让服务商专注于业务增长和客户关系。</p>
+    </div>
+    <div class="efficiency-grid">
+      <div class="efficiency-card reveal">
+        <div class="icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/></svg>
+        </div>
+        <h4>AI 批量生产</h4>
+        <p>大模型+预设模板，日产百篇品牌内容，质量稳定不依赖人</p>
+      </div>
+      <div class="efficiency-card reveal">
+        <div class="icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4 20-7Z"/></svg>
+        </div>
+        <h4>一键全网分发</h4>
+        <p>国内+海外同步覆盖，告别手动复制粘贴，分发效率指数级提升</p>
+      </div>
+      <div class="efficiency-card reveal">
+        <div class="icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        </div>
+        <h4>客户自助服务</h4>
+        <p>终端客户自己查账单、查报表、管知识库，减少70%客服工作量</p>
+      </div>
+      <div class="efficiency-card reveal">
+        <div class="icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+        </div>
+        <h4>财务闭环</h4>
+        <p>在线充值，先收钱后服务，现金流健康，不再垫资运营</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 使用流程 ========== -->
+<section class="section section-soft" id="workflow">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2>三步上手，<span class="grad">即开即用</span></h2>
+      <p class="section-desc">纯Web系统，无需部署安装，由商务一对一开通配置，确保每个服务商都能快速启动运营。</p>
+    </div>
+    <div class="workflow">
+      <div class="workflow-step reveal">
+        <div class="workflow-num">1</div>
+        <h4>预约演示</h4>
+        <p>扫码联系商务，一对一演示系统全功能，了解平台核心能力与适配场景。</p>
+      </div>
+      <div class="workflow-arrow reveal">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </div>
+      <div class="workflow-step reveal">
+        <div class="workflow-num">2</div>
+        <h4>开通配置</h4>
+        <p>OEM定制品牌、配置产品模块与计费模式、设定代理层级，半小时完成全部就绪。</p>
+      </div>
+      <div class="workflow-arrow reveal">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </div>
+      <div class="workflow-step reveal">
+        <div class="workflow-num">3</div>
+        <h4>规模运营</h4>
+        <p>AI批量生成内容 → 一键全网分发 → 效果追踪复盘 → 发展代理商裂变，跑通增长飞轮。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== CTA ========== -->
+<section class="cta-section" id="contact">
+  <div class="container cta-inner">
+    <h2>现已正式开售，即刻接入</h2>
+    <p>扫码添加商务微信，预约一对一演示<br>了解 GEO引擎如何帮你的业务规模化增长</p>
+    <div class="cta-qr">
+      <div class="cta-qr-img">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+          <rect x="4.5" y="4.5" width="4" height="4"/><rect x="15.5" y="4.5" width="4" height="4"/>
+          <rect x="4.5" y="15.5" width="4" height="4"/><rect x="15.5" y="15.5" width="4" height="4"/>
+        </svg>
+      </div>
+      <div class="cta-qr-text">
+        <strong>扫码添加商务微信</strong>
+        <span>获取一对一系统演示<br>了解合作方案</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== Footer ========== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="logo">
+          <span class="logo-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </span>
+          <span class="logo-text">GEO引擎</span>
+        </div>
+        <p>专为有 GEO 交付能力的团队打造，<br>把零散经验封装成可代理裂变的标准化服务体系。</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h5>核心功能</h5>
+          <ul>
+            <li><a href="#features">GEO品牌监控</a></li>
+            <li><a href="#features">AI内容生成</a></li>
+            <li><a href="#features">智能分发</a></li>
+            <li><a href="#features">灵活计费</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h5>运营体系</h5>
+          <ul>
+            <li><a href="#features">代理体系</a></li>
+            <li><a href="#features">客户管理</a></li>
+            <li><a href="#features">权限管理</a></li>
+            <li><a href="#features">财务管理</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h5>关于</h5>
+          <ul>
+            <li><a href="#contact">预约演示</a></li>
+            <li><a href="#advantage">核心优势</a></li>
+            <li><a href="#workflow">使用流程</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 GEO引擎. GEO计费优化管理系统 — 面向GEO服务商的规模化运营平台</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Navbar scroll shadow
+window.addEventListener('scroll',function(){
+  var nav=document.getElementById('nav');
+  if(window.scrollY>10){nav.classList.add('scrolled')}else{nav.classList.remove('scrolled')}
+});
+
+// Mobile menu toggle
+document.getElementById('navToggle').addEventListener('click',function(){
+  document.getElementById('navLinks').classList.toggle('open');
+});
+document.querySelectorAll('#navLinks a,#contact').forEach(function(link){
+  link.addEventListener('click',function(){
+    var nl=document.getElementById('navLinks');
+    if(nl){nl.classList.remove('open')}
+  });
+});
+
+// Scroll reveal
+var observer=new IntersectionObserver(function(entries){
+  entries.forEach(function(entry){
+    if(entry.isIntersecting){
+      entry.target.classList.add('visible');
+      observer.unobserve(entry.target);
+    }
+  });
+},{threshold:0.12,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(function(el){observer.observe(el)});
+
+// Stagger delays
+document.querySelectorAll('.feature-grid .feature-card').forEach(function(c,i){c.style.transitionDelay=(i%3*0.07)+'s'});
+document.querySelectorAll('.advantage-grid .advantage-card').forEach(function(c,i){c.style.transitionDelay=(i*0.06)+'s'});
+document.querySelectorAll('.efficiency-grid .efficiency-card').forEach(function(c,i){c.style.transitionDelay=(i*0.05)+'s'});
+</script>
+</body>
+</html>
