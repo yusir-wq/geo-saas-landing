@@ -257,6 +257,31 @@ ul{list-style:none}
 .workflow-arrow{font-size:32px;color:var(--c-border);display:flex;align-items:center}
 .workflow-arrow svg{color:var(--c-text-light)}
 
+/* ========== Pricing ========== */
+.pricing-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;align-items:stretch}
+.pricing-card{background:var(--c-bg-card);border:1px solid var(--c-border);border-radius:var(--radius-lg);padding:44px 28px 32px;text-align:center;transition:all .35s ease;position:relative;display:flex;flex-direction:column}
+.pricing-card:hover{border-color:transparent;box-shadow:var(--shadow-lg);transform:translateY(-6px)}
+.pricing-card.pro{border:2px solid var(--c-primary);background:linear-gradient(180deg,#F8F5FF 0%,#FFFFFF 55%)}
+.pricing-card.pro::before{content:'PRO';position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:var(--gradient);color:#fff;font-size:11px;font-weight:700;padding:4px 18px;border-radius:0 0 10px 10px;letter-spacing:.08em}
+.pricing-card .plan-name{font-size:19px;font-weight:700;color:var(--c-text);margin-bottom:6px}
+.pricing-card .plan-desc{font-size:13px;color:var(--c-text-light);margin-bottom:24px;line-height:1.5;min-height:36px}
+.pricing-card .price-box{margin-bottom:28px}
+.pricing-card .price-discount{font-size:38px;font-weight:800;color:var(--c-primary);letter-spacing:-.02em}
+.pricing-card .price-discount .currency{font-size:18px;font-weight:600;vertical-align:top;margin-right:2px}
+.pricing-card .price-original{display:block;font-size:15px;color:var(--c-text-light);text-decoration:line-through;margin-top:6px}
+.pricing-features{text-align:left;margin-bottom:32px;flex:1}
+.pricing-features li{font-size:14px;color:var(--c-text-mid);line-height:1.6;padding:7px 0 7px 22px;position:relative}
+.pricing-features li::before{content:'\2713';position:absolute;left:0;top:8px;color:var(--c-primary);font-weight:700;font-size:15px}
+.pricing-features li.off{color:var(--c-text-light);opacity:.5}
+.pricing-features li.off::before{content:'\2014';color:var(--c-text-light);font-weight:400;font-size:17px;top:6px}
+.pricing-features .feat-group{font-size:12px;font-weight:700;color:var(--c-text-dark);letter-spacing:.05em;margin:16px 0 4px;padding-bottom:6px;border-bottom:1px solid var(--c-border);padding-left:0}
+.pricing-features .feat-group::before{display:none}
+.pricing-card .btn-plan{display:block;text-align:center;padding:13px 24px;border-radius:12px;font-size:15px;font-weight:600;transition:all .3s ease;border:1.5px solid var(--c-primary);color:var(--c-primary);background:transparent}
+.pricing-card:hover .btn-plan{background:var(--c-primary);color:#fff;box-shadow:0 6px 18px rgba(124,91,247,.25)}
+.pricing-card.pro .btn-plan{background:var(--gradient);color:#fff;border-color:transparent;box-shadow:0 6px 18px rgba(124,91,247,.25)}
+.pricing-card.pro:hover .btn-plan{box-shadow:0 10px 28px rgba(124,91,247,.35);transform:translateY(-1px)}
+.pricing-note{text-align:center;margin-top:36px;font-size:14px;color:var(--c-text-light);line-height:1.7}
+
 /* ========== CTA ========== */
 .cta-section{
   position:relative;padding:90px 0;
@@ -314,6 +339,7 @@ ul{list-style:none}
   .feature-grid{grid-template-columns:repeat(2,1fr)}
   .advantage-grid{grid-template-columns:repeat(2,1fr)}
   .efficiency-grid{grid-template-columns:repeat(2,1fr)}
+  .pricing-grid{grid-template-columns:repeat(2,1fr)}
   .hero h1{font-size:40px}
 }
 @media(max-width:768px){
@@ -323,6 +349,7 @@ ul{list-style:none}
   .feature-grid{grid-template-columns:1fr}
   .advantage-grid{grid-template-columns:1fr}
   .efficiency-grid{grid-template-columns:repeat(2,1fr)}
+  .pricing-grid{grid-template-columns:1fr}
   .hero{padding:110px 0 64px}
   .hero h1{font-size:32px}
   .hero p.sub{font-size:16px}
@@ -367,6 +394,7 @@ ul{list-style:none}
       <li><a href="#features">功能模块</a></li>
       <li><a href="#efficiency">效率提升</a></li>
       <li><a href="#workflow">使用流程</a></li>
+      <li><a href="#pricing">套餐价格</a></li>
     </ul>
     <a href="#contact" class="nav-cta">预约演示</a>
     <div class="nav-toggle" id="navToggle"><span></span><span></span><span></span></div>
@@ -661,6 +689,123 @@ ul{list-style:none}
   </div>
 </section>
 
+<!-- ========== 套餐价格 ========== -->
+<section class="section" id="pricing">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2>选择适合你的<span class="grad">版本套餐</span></h2>
+      <p class="section-desc">按功能模块灵活选择，项目数、客户数、员工数均不限量。PRO版额外解锁一二级代理裂变体系。</p>
+    </div>
+    <div class="pricing-grid">
+      <!-- GEO提单版 -->
+      <div class="pricing-card reveal">
+        <div class="plan-name">GEO提单版</div>
+        <div class="plan-desc">基础运营管理，适合刚起步的服务商团队</div>
+        <div class="price-box">
+          <span class="price-discount"><span class="currency">¥</span>5,980</span>
+          <span class="price-original">原价 ¥8,000</span>
+        </div>
+        <ul class="pricing-features">
+          <li class="feat-group">基础管理</li>
+          <li>项目/客户/员工管理</li>
+          <li>GEO品牌监控（6大AI平台）</li>
+          <li>效果报表（日/月/自定义）</li>
+          <li>灵活计费 + 财务管理</li>
+          <li>权限管理（角色自定义）</li>
+          <li>OEM白标（品牌/域名/Logo）</li>
+          <li class="feat-group">内容生产</li>
+          <li class="off">AI文章生成</li>
+          <li class="off">官媒投稿（18000+媒体）</li>
+          <li class="off">站群管理</li>
+          <li class="feat-group">代理体系</li>
+          <li class="off">一二级代理 + 独立核算</li>
+        </ul>
+        <a href="#contact" class="btn-plan">咨询开通</a>
+      </div>
+      <!-- GEO提单版PRO -->
+      <div class="pricing-card pro reveal">
+        <div class="plan-name">GEO提单版 PRO</div>
+        <div class="plan-desc">在提单版基础上，解锁一二级代理裂变能力</div>
+        <div class="price-box">
+          <span class="price-discount"><span class="currency">¥</span>6,980</span>
+          <span class="price-original">原价 ¥9,000</span>
+        </div>
+        <ul class="pricing-features">
+          <li class="feat-group">基础管理</li>
+          <li>项目/客户/员工管理</li>
+          <li>GEO品牌监控（6大AI平台）</li>
+          <li>效果报表（日/月/自定义）</li>
+          <li>灵活计费 + 财务管理</li>
+          <li>权限管理（角色自定义）</li>
+          <li>OEM白标（品牌/域名/Logo）</li>
+          <li class="feat-group">内容生产</li>
+          <li class="off">AI文章生成</li>
+          <li class="off">官媒投稿（18000+媒体）</li>
+          <li class="off">站群管理</li>
+          <li class="feat-group">代理体系</li>
+          <li>一级代理 + 独立核算</li>
+          <li>二级代理 + 分账体系</li>
+        </ul>
+        <a href="#contact" class="btn-plan">咨询开通</a>
+      </div>
+      <!-- GEO国内优化版 -->
+      <div class="pricing-card reveal">
+        <div class="plan-name">GEO国内优化版</div>
+        <div class="plan-desc">增加AI内容生产与全网分发，打造内容产能</div>
+        <div class="price-box">
+          <span class="price-discount"><span class="currency">¥</span>7,980</span>
+          <span class="price-original">原价 ¥10,000</span>
+        </div>
+        <ul class="pricing-features">
+          <li class="feat-group">基础管理</li>
+          <li>项目/客户/员工管理</li>
+          <li>GEO品牌监控（6大AI平台）</li>
+          <li>效果报表（日/月/自定义）</li>
+          <li>灵活计费 + 财务管理</li>
+          <li>权限管理（角色自定义）</li>
+          <li>OEM白标（品牌/域名/Logo）</li>
+          <li class="feat-group">内容生产</li>
+          <li>GEO知识库</li>
+          <li>AI文章生成与管理</li>
+          <li>官媒投稿（18000+媒体）</li>
+          <li>站群管理</li>
+          <li class="feat-group">代理体系</li>
+          <li class="off">一二级代理 + 独立核算</li>
+        </ul>
+        <a href="#contact" class="btn-plan">咨询开通</a>
+      </div>
+      <!-- GEO国内优化版PRO -->
+      <div class="pricing-card pro reveal">
+        <div class="plan-name">GEO国内优化版 PRO</div>
+        <div class="plan-desc">国内优化全部功能 + 一二级代理裂变</div>
+        <div class="price-box">
+          <span class="price-discount"><span class="currency">¥</span>8,980</span>
+          <span class="price-original">原价 ¥12,000</span>
+        </div>
+        <ul class="pricing-features">
+          <li class="feat-group">基础管理</li>
+          <li>项目/客户/员工管理</li>
+          <li>GEO品牌监控（6大AI平台）</li>
+          <li>效果报表（日/月/自定义）</li>
+          <li>灵活计费 + 财务管理</li>
+          <li>权限管理（角色自定义）</li>
+          <li>OEM白标（品牌/域名/Logo）</li>
+          <li class="feat-group">内容生产</li>
+          <li>GEO知识库</li>
+          <li>AI文章生成与管理</li>
+          <li>官媒投稿（18000+媒体）</li>
+          <li>站群管理</li>
+          <li class="feat-group">代理体系</li>
+          <li>一级代理 + 独立核算</li>
+          <li>二级代理 + 分账体系</li>
+        </ul>
+        <a href="#contact" class="btn-plan">咨询开通</a>
+      </div>
+    </div>
+    <p class="pricing-note">所有版本项目数、客户数、员工数均不限量。海外优化版、旗舰全能版即将上线，敬请期待。</p>
+  </div>
+</section>
+
 <!-- ========== CTA ========== -->
 <section class="cta-section" id="contact">
   <div class="container cta-inner">
@@ -721,6 +866,7 @@ ul{list-style:none}
             <li><a href="#contact">预约演示</a></li>
             <li><a href="#advantage">核心优势</a></li>
             <li><a href="#workflow">使用流程</a></li>
+            <li><a href="#pricing">套餐价格</a></li>
           </ul>
         </div>
       </div>
